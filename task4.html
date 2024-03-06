@@ -1,0 +1,101 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="task4.css">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;0,900;1,300;1,400;1,700;1,900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+    <title>To Do List</title>
+</head>
+<body>
+    
+    <div class="heading">
+        <h1> Let's Simplify Tasks With Your Ultimate Companion !! </h1>
+    </div>    
+       
+    <div class="container">
+        <div class="box">
+            <h1>To Do List</h1>
+            <input  type="text" placeholder="Bring your new task...." id="inputBx">
+            <ul id="list"></ul>
+        </div>
+    </div>
+
+    <script>
+        
+        let inputBx = document.querySelector('#inputBx');
+        let list = document.querySelector('#list');
+
+        inputBx.addEventListener("keyup",function(event){
+            if(event.key == 'Enter') {
+                addItem(this.value)
+                this.value = ""
+            }
+        })
+
+// Function to add item to the list and store it locally
+let addItem = (inputBx) => {
+    let listItem = document.createElement("li");
+    listItem.innerHTML = `<span>${inputBx}</span><i></i>`;
+    listItem.setAttribute("contenteditable", true); // Allow editing
+
+    listItem.addEventListener("click", function(){
+        this.classList.toggle('done');
+        updateLocalStorage(); // Update local storage when task is toggled
+    });
+
+    listItem.querySelector("i").addEventListener("click", function(){
+        listItem.remove();
+        updateLocalStorage(); // Update local storage when task is removed
+    });
+
+    list.appendChild(listItem);
+    updateLocalStorage(); // Update local storage when task is added
+}
+
+// Function to update local storage with current tasks
+let updateLocalStorage = () => {
+    const tasks = [];
+    list.querySelectorAll("li").forEach(item => {
+        const taskText = item.querySelector("span").textContent;
+        const isDone = item.classList.contains('done');
+        tasks.push({ text: taskText, done: isDone });
+    });
+    localStorage.setItem("tasks", JSON.stringify(tasks));
+}
+
+// Function to load tasks from local storage when the page loads
+window.addEventListener("DOMContentLoaded", () => {
+    const storedTasks = JSON.parse(localStorage.getItem("tasks"));
+    if (storedTasks) {
+        storedTasks.forEach(task => {
+            addItem(task.text);
+            if (task.done) {
+                list.lastElementChild.classList.add('done');
+            }
+        });
+    }
+});
+
+// Function to handle editing
+list.addEventListener("dblclick", function(event) {
+    if (event.target.tagName === "SPAN") {
+        event.target.setAttribute("contenteditable", true);
+        event.target.focus();
+    }
+});
+
+// Function to stop editing on Enter key press
+list.addEventListener("keypress", function(event) {
+    if (event.target.tagName === "SPAN" && event.key === "Enter") {
+        event.target.blur(); // Stop editing
+        updateLocalStorage(); // Update local storage when task is edited
+    }
+});
+    </script>
+
+</body>
+</html>
